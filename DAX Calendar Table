@@ -1,0 +1,39 @@
+# The column that creates all the calendar measures is __"fctVentas[Fecha Orden]"__ 
+# Please feel free to change it for the desire column in the 1st and 3rd row of the DAX code.
+
+#dimCalendario = 
+VAR FechaMinVta = MIN(fctVentas[Fecha Orden])
+VAR YearFechaMin = YEAR(FechaMinVta)
+VAR FechaMaxVta = MAX(fctVentas[Fecha Orden])
+VAR YearFechaMax = YEAR(FechaMaxVta)
+VAR Tabla = 
+FILTER(
+    CALENDARAUTO(),
+    YEAR([Date]) >= YearFechaMin &&
+    YEAR([Date]) <= YearFechaMax
+)
+VAR Calendario =
+    SELECTCOLUMNS (
+        Tabla,
+        "Fecha",[Date],
+        "Año", YEAR ( [Date] ),
+        "Mes", FORMAT ( [Date],"MMMM"),
+        "Periodo", INT(FORMAT([Date], "YYYYMM")),
+        "Mes-Año", COMBINEVALUES("-", FORMAT ( [Date],"MMM"), YEAR ( [Date] )),   
+        "MesNro",INT ( FORMAT ( [Date],"M" ) ),
+        "NroDia",INT ( FORMAT ( [Date],"d" ) ),
+        "Trimestre", "T" & ROUNDUP ( MONTH ( [Date] ) / 3,0 ),
+        "NroTrimestre",ROUNDUP ( MONTH ( [Date] ) / 3,0 ),
+        "DiaSemana",WEEKDAY ( [Date],2 ),
+        "Semana", WEEKNUM ( [Date],2),
+        "Nombre Dia", FORMAT ( [Date],"DDDD"),
+        "Año-Trimestre", COMBINEVALUES ("-",YEAR ( [Date] ), "T" & ROUNDUP ( MONTH ( [Date] ) / 3,0 )),
+        "MesCorto", FORMAT ( [Date],"MMM" ),
+        "Dia",DAY([Date]),
+        "Mes Actual",MONTH ( TODAY () ),
+        "Trimestre Actual",ROUNDUP ( MONTH ( TODAY () ) / 3,0 ),
+        "Semestre", ROUNDUP ( INT ( FORMAT ( [Date],"M" ) ) * 2 / 12,0 ),
+        "Año-Mes",COMBINEVALUES ( "-",YEAR ( [Date] ),FORMAT ( [Date],"MM" ) ),
+        "IdFecha", YEAR ( [Date] ) * 10000 + MONTH ( [Date] ) * 100 + DAY ( [Date] )
+    )
+RETURN Calendario
